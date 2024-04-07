@@ -1,40 +1,60 @@
--- Inserções na tabela 'barbearia'
-INSERT INTO barbearia (nome_negocio, img_perfil) VALUES ('Barbearia do Zé', 'imagem_perfil_barbearia1.jpg');
-INSERT INTO barbearia (nome_negocio, img_perfil) VALUES ('Barbearia Moderna', 'imagem_perfil_barbearia2.jpg');
+-- Inserções para a tabela endereco
+INSERT INTO endereco (cep, logradouro, numero, complemento, cidade, estado)
+VALUES
+('12345-678', 'Rua A', 123, 'Apto 101', 'Cidade A', 'Estado A'),
+('54321-876', 'Avenida B', 456, 'Sala 202', 'Cidade B', 'Estado B');
 
--- Inserções na tabela 'usuario'
-INSERT INTO usuario (nome, email, senha, celular, imgPerfil, user_admin, user_fk_barbearia) VALUES ('João', 'joao@example.com', 'senha123', '999999999', 'joao_foto_perfil.jpg', 1, 1);
-INSERT INTO usuario (nome, email, senha, celular, imgPerfil, user_admin, user_fk_barbearia) VALUES ('Maria', 'maria@example.com', 'senha456', '888888888', 'maria_foto_perfil.jpg', 0, 2);
-INSERT INTO usuario (nome, email, senha, celular, imgPerfil) VALUES ('Douglas', 'douglas@example.com', 'senha456', '888888888', 'douglas_foto_perfil.jpg');
+-- Inserções para a tabela especialidade
+INSERT INTO especialidade (nome)
+VALUES
+('Corte Masculino'),
+('Barba'),
+('Coloração');
 
--- Inserções na tabela 'financeiro'
-INSERT INTO financeiro (id_financeiro, valor, dt_lancamento, financeiro_fk_barberia) VALUES (1, 100.50, '2024-04-03 10:00:00', 1);
-INSERT INTO financeiro (id_financeiro, valor, dt_lancamento, financeiro_fk_barberia) VALUES (2, 200.75, '2024-04-03 11:30:00', 2);
+-- Inserções para a tabela avaliacao
+INSERT INTO avaliacao (resultadoAvaliacao)
+VALUES
+(5.0),
+(3.8),
+(4.6);
 
--- Inserções na tabela 'endereco'
-INSERT INTO endereco (id_endereco, cep, logradouro, numero, complemento, cidade, estado, end_fk_barbearia, end_fk_usuario) VALUES (1, '12345-678', 'Rua Teste', 123, 'Apto 101', 'Cidade Teste', 'Estado Teste', 1, 1);
-INSERT INTO endereco (id_endereco, cep, logradouro, numero, complemento, cidade, estado, end_fk_barbearia, end_fk_usuario) VALUES (2, '54321-987', 'Avenida Principal', 456, 'Sala 202', 'Cidade Nova', 'Estado Novo', 2, 2);
+-- Inserções para a tabela barbearia
+INSERT INTO barbearia (nome_negocio, celular, email, img_perfil, barbearia_fk_endereco)
+VALUES
+('Barbearia Teste 1', '123456789', 'contato@teste1.com', NULL, 1),
+('Barbearia Teste 2', '987654321', 'contato@teste2.com', NULL, 2);
 
--- Inserções na tabela 'imgs_galeria'
-INSERT INTO imgs_galeria (id_imgs_galeria, imagem, barbearia_id_barbearia, usuario_id_usuario) VALUES (1, 'imagem_galeria1.jpg', 1, 1);
-INSERT INTO imgs_galeria (id_imgs_galeria, imagem, barbearia_id_barbearia, usuario_id_usuario) VALUES (2, 'imagem_galeria2.jpg', 2, 2);
+-- Inserções para a tabela usuario
+INSERT INTO usuario (nome, email, senha, celular, imgPerfil, user_admin, user_fk_barbearia)
+VALUES
+('Usuário Teste 1', 'usuario1@teste.com', 'senha123', '987654321', NULL, 0, 1),
+('Usuário Teste 2', 'usuario2@teste.com', 'senha456', '123456789', NULL, 0, 2);
 
--- Inserções na tabela 'especialidade'
-INSERT INTO especialidade (id_especialidade, nome) VALUES (1, 'Corte Masculino');
-INSERT INTO especialidade (id_especialidade, nome) VALUES (2, 'Barba');
+-- Inserções para a tabela financeiro
+INSERT INTO financeiro (valor, dt_lancamento, financeiro_fk_barberia)
+VALUES
+(1000.50, NOW(), 1),
+(1500.75, NOW(), 2);
 
--- Inserções na tabela 'servico'
-INSERT INTO servico (id_servico, preco, descricao, tipo_servico, servico_fk_usuario, servico_fk_barbearia, servico_fk_especialidade) VALUES (1, 50.00, 'Corte de cabelo masculino padrão', 'Corte Masculino', 1, 1, 1);
-INSERT INTO servico (id_servico, preco, descricao, tipo_servico, servico_fk_usuario, servico_fk_barbearia, servico_fk_especialidade) VALUES (2, 30.00, 'Barba completa com navalha', 'Barba', 2, 2, 2);
+-- Inserções para a tabela imgs_galeria
+INSERT INTO imgs_galeria (imagem, barbearia_id_barbearia, usuario_id_usuario)
+VALUES
+('imagem1.jpg', 1, 1),
+('imagem2.jpg', 1, 2),
+('imagem3.jpg', 2, 1);
 
--- Inserções na tabela 'avaliacao'
-INSERT INTO avaliacao (id_avaliacao, resultado_avaliacao) VALUES (1, 4.5);
-INSERT INTO avaliacao (id_avaliacao, resultado_avaliacao) VALUES (2, 4.0);
+-- Inserções para a tabela servico
+INSERT INTO servico (preco, descricao, tipo_servico, tempo_estimado, servico_fk_usuario, servico_fk_barbearia, servico_fk_especialidade)
+VALUES
+(50.00, 'Corte de cabelo masculino', 'Corte', 30, 1, 1, 1),
+(40.00, 'Barba completa', 'Barba', 20, 1, 1, 2),
+(80.00, 'Coloração de cabelo', 'Coloração', 60, 2, 2, 3);
 
--- Inserções na tabela 'agendamento'
-INSERT INTO agendamento (id_agendamento, data_hora, ag_fk_servico, ag_fk_usuario, ag_fk_barbearia, ag_fk_especialidade, ag_fk_avaliacao) VALUES (1, '2024-04-10 14:00:00', 1, 1, 1, 1, 1);
-INSERT INTO agendamento (id_agendamento, data_hora, ag_fk_servico, ag_fk_usuario, ag_fk_barbearia, ag_fk_especialidade, ag_fk_avaliacao) VALUES (2, '2024-04-15 15:30:00', 2, 2, 2, 2, 2);
-
+-- Inserções para a tabela agendamento
+INSERT INTO agendamento (data_hora, concluido, ag_fk_servico, ag_fk_cliente, ag_fk_barbeiro, ag_fk_barbearia, ag_fk_especialidade, ag_fk_avaliacao)
+VALUES
+('2024-04-05 10:00:00', TRUE, 1, 1, 2, 1, 1, 1),
+('2024-04-07 15:30:00', FALSE, 2, 2, 1, 2, 2, 2);
 
 -- Selecionar todas as barbearias
 SELECT * FROM barbearia;
@@ -62,3 +82,5 @@ SELECT * FROM avaliacao;
 
 -- Selecionar todos os agendamentos
 SELECT * FROM agendamento;
+
+
