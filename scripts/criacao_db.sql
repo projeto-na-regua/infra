@@ -1,9 +1,10 @@
 CREATE DATABASE db_naregua;
 USE db_naregua;
-DROP DATABASE db_naregua;
+
+
 
 CREATE TABLE IF NOT EXISTS endereco (
-  id_endereco INT NOT NULL,
+  id_endereco INT NOT NULL auto_increment,
   cep CHAR(9) NULL,
   logradouro VARCHAR(250) NULL,
   numero INT NULL,
@@ -28,9 +29,9 @@ CREATE TABLE IF NOT EXISTS avaliacao (
 
 CREATE TABLE IF NOT EXISTS barbearia (
   id_barbearia INT NOT NULL AUTO_INCREMENT,
-  nome_negocio VARCHAR(45) NOT NULL,
-  celular VARCHAR(45) NULL,
-  email VARCHAR(45) NOT NULL,
+  nome_negocio VARCHAR(180) NOT NULL,
+  celular VARCHAR(15) NULL,
+  email VARCHAR(250) NULL,
   img_perfil BLOB,
   barbearia_fk_endereco INT,
   PRIMARY KEY (id_barbearia),
@@ -42,20 +43,24 @@ CREATE TABLE IF NOT EXISTS barbearia (
   
 CREATE TABLE IF NOT EXISTS usuario (
   id_usuario INT NOT NULL AUTO_INCREMENT,
+  dtype VARCHAR(50) NOT NULL,
   nome VARCHAR(120) NOT NULL,
-  email VARCHAR(120) NOT NULL,
+  email VARCHAR(250) NOT NULL,
   senha VARCHAR(12) NOT NULL,
   celular VARCHAR(15) NOT NULL,
-  imgPerfil BLOB NULL,
-  user_admin TINYINT(1) NULL,
-  user_fk_barbearia INT NULL,
+  img_perfil BLOB NULL,
+  usuario_admin TINYINT(1) NULL,
+  usuario_fk_barbearia INT NULL,
+  usuario_fk_endereco INT NULL,
   PRIMARY KEY (id_usuario),
-  INDEX fk_Usuario_Barbearia1_idx (user_fk_barbearia ASC) VISIBLE,
+  INDEX fk_Usuario_Barbearia1_idx (usuario_fk_barbearia ASC) VISIBLE,
   CONSTRAINT fk_Usuario_Barbearia1
-    FOREIGN KEY (user_fk_barbearia)
+    FOREIGN KEY (usuario_fk_barbearia)
     REFERENCES barbearia(id_barbearia)
     ON DELETE NO ACTION
-    ON UPDATE NO ACTION
+    ON UPDATE NO ACTION,
+ CONSTRAINT fk_usuario_cliente FOREIGN KEY (usuario_fk_endereco) REFERENCES endereco(id_endereco),
+ CONSTRAINT checkDtype CHECK (dtype IN('Barbeiro', 'Cliente'))
 );
     
 CREATE TABLE IF NOT EXISTS financeiro (
@@ -151,3 +156,4 @@ CREATE TABLE IF NOT EXISTS agendamento (
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
 );
+
