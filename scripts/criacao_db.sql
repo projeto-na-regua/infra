@@ -1,8 +1,6 @@
 CREATE DATABASE db_naregua;
 USE db_naregua;
 
-
-
 CREATE TABLE IF NOT EXISTS endereco (
   id_endereco INT NOT NULL auto_increment,
   cep CHAR(9) NULL,
@@ -29,9 +27,14 @@ CREATE TABLE IF NOT EXISTS avaliacao (
 
 CREATE TABLE IF NOT EXISTS barbearia (
   id_barbearia INT NOT NULL AUTO_INCREMENT,
-  nome_negocio VARCHAR(180) NOT NULL,
-  celular VARCHAR(15) NULL,
-  email VARCHAR(250) NULL,
+  nome_negocio VARCHAR(100) NOT NULL,
+  email_negocio VARCHAR(100),
+  celular_negocio VARCHAR(15),
+  dia_semana ENUM('Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado', 'Domingo'),
+  hora_abertura TIME,
+  hora_fechamento TIME,
+  cnpj VARCHAR(18),
+  cpf VARCHAR(14),
   img_perfil BLOB,
   barbearia_fk_endereco INT,
   PRIMARY KEY (id_barbearia),
@@ -40,7 +43,7 @@ CREATE TABLE IF NOT EXISTS barbearia (
   ON DELETE SET NULL
   ON UPDATE CASCADE
 );
-  
+
 CREATE TABLE IF NOT EXISTS usuario (
   id_usuario INT NOT NULL AUTO_INCREMENT,
   dtype VARCHAR(50) NOT NULL,
@@ -62,6 +65,7 @@ CREATE TABLE IF NOT EXISTS usuario (
  CONSTRAINT fk_usuario_cliente FOREIGN KEY (usuario_fk_endereco) REFERENCES endereco(id_endereco),
  CONSTRAINT checkDtype CHECK (dtype IN('Barbeiro', 'Cliente'))
 );
+
     
 CREATE TABLE IF NOT EXISTS financeiro (
   id_financeiro INT NOT NULL,
