@@ -30,9 +30,6 @@ CREATE TABLE IF NOT EXISTS barbearia (
   nome_negocio VARCHAR(100) NOT NULL,
   email_negocio VARCHAR(100),
   celular_negocio VARCHAR(15),
-  dia_semana ENUM('Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado', 'Domingo'),
-  hora_abertura TIME,
-  hora_fechamento TIME,
   cnpj VARCHAR(18),
   cpf VARCHAR(14),
   img_perfil BLOB,
@@ -43,6 +40,20 @@ CREATE TABLE IF NOT EXISTS barbearia (
   ON DELETE SET NULL
   ON UPDATE CASCADE
 );
+
+CREATE TABLE IF NOT EXISTS dia_semana (
+  id_dia_semana INT NOT NULL,
+  nome ENUM('Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado', 'Domingo') NULL,
+  hora_abertura TIME NULL,
+  hora_fechamento TIME NULL,
+  ds_id_barbearia INT NOT NULL,
+  PRIMARY KEY (id_dia_semana),
+  INDEX fk_dia_semana_barbearia1_idx (ds_id_barbearia ASC) VISIBLE,
+  CONSTRAINT fk_dia_semana_barbearia1
+    FOREIGN KEY (ds_id_barbearia)
+    REFERENCES barbearia (id_barbearia)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION);
 
 CREATE TABLE IF NOT EXISTS usuario (
   id_usuario INT NOT NULL AUTO_INCREMENT,
