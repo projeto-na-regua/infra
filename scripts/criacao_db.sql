@@ -1,180 +1,319 @@
-CREATE DATABASE db_naregua;
-USE db_naregua;
+USE `db_naregua`;
+-- db_naregua.avaliacao definição
 
-CREATE TABLE IF NOT EXISTS endereco (
-  id_endereco INT NOT NULL AUTO_INCREMENT,
-  cep CHAR(9) NULL,
-  logradouro VARCHAR(250) NULL,
-  numero INT NULL,
-  complemento VARCHAR(50) NULL,
-  cidade VARCHAR(60) NULL,
-  estado VARCHAR(60) NULL,
-  PRIMARY KEY (id_endereco)
-);
-  
-CREATE TABLE IF NOT EXISTS especialidade (
-  id_especialidade INT NOT NULL AUTO_INCREMENT,
-  nome VARCHAR(180) NULL,
-  PRIMARY KEY (id_especialidade)
-);
-
-CREATE TABLE IF NOT EXISTS avaliacao (
-  id_avaliacao INT NOT NULL AUTO_INCREMENT,
-  resultado_avaliacao DECIMAL(3,2) NULL,
-  constraint check_avaliacao check (resultado_avaliacao <= 5 AND resultado_avaliacao >= 0),
-  PRIMARY KEY (id_avaliacao)
-);
-
-CREATE TABLE IF NOT EXISTS dia_semana (
-  id_dia_semana INT NOT NULL AUTO_INCREMENT,
-  nome ENUM('SEG', 'TER', 'QUA', 'QUI', 'SEX', 'SAB', 'DOM') NOT NULL,
-  hora_abertura TIME NULL,
-  hora_fechamento TIME NULL,
-  ds_id_barbearia INT NOT NULL,
-  PRIMARY KEY (id_dia_semana),
-  INDEX fk_dia_semana_barbearia1_idx (ds_id_barbearia ASC) VISIBLE,
-  CONSTRAINT Fk_dia_semana_barbearia1
-    FOREIGN KEY (ds_id_barbearia)
-    REFERENCES barbearia (id_barbearia)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION
-);
-
-CREATE TABLE IF NOT EXISTS barbearia (
-  id_barbearia INT NOT NULL AUTO_INCREMENT,
-  nome_negocio VARCHAR(100) NULL,
-  email_negocio VARCHAR(100) NULL,
-  celular_negocio VARCHAR(15) NULL,
-  img_perfil BLOB NULL,
-  cnpj VARCHAR(18) NULL,
-  cpf VARCHAR(14) NULL,
-  descricao TEXT NULL,
-  barbearia_fk_endereco INT NOT NULL,
-  PRIMARY KEY (id_barbearia),
-  INDEX fk_barbearia_endereco1_idx (barbearia_fk_endereco ASC) VISIBLE,
-  CONSTRAINT fk_barbearia_endereco1
-    FOREIGN KEY (barbearia_fk_endereco)
-    REFERENCES endereco (id_endereco)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION);
-    
+CREATE TABLE `avaliacao` (
+  `id_avaliacao` int NOT NULL AUTO_INCREMENT,
+  `resultado_avaliacao` decimal(3,2) DEFAULT NULL,
+  `comentario` text,
+  PRIMARY KEY (`id_avaliacao`),
+  CONSTRAINT `avaliacao_chk_1` CHECK (((`resultado_avaliacao` <= 5) and (`resultado_avaliacao` >= 0)))
+) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 
+-- db_naregua.endereco definição
 
-CREATE TABLE IF NOT EXISTS usuario (
-  id_usuario INT NOT NULL AUTO_INCREMENT,
-  dtype VARCHAR(50) NOT NULL,
-  nome VARCHAR(120) NOT NULL,
-  email VARCHAR(250) NOT NULL,
-  senha VARCHAR(12) NOT NULL,
-  celular VARCHAR(15) NOT NULL,
-  img_perfil BLOB NULL,
-  usuario_admin TINYINT(1) NULL,
-  usuario_fk_barbearia INT NULL,
-  usuario_fk_endereco INT NULL,
-  PRIMARY KEY (id_usuario),
-  INDEX fk_Usuario_Barbearia1_idx (usuario_fk_barbearia ASC) VISIBLE,
-  CONSTRAINT fk_Usuario_Barbearia1
-    FOREIGN KEY (usuario_fk_barbearia)
-    REFERENCES barbearia(id_barbearia)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
- CONSTRAINT fk_usuario_cliente FOREIGN KEY (usuario_fk_endereco) REFERENCES endereco(id_endereco),
- CONSTRAINT checkDtype CHECK (dtype IN('Barbeiro', 'Cliente'))
-);
+CREATE TABLE `endereco` (
+  `id_endereco` int NOT NULL AUTO_INCREMENT,
+  `cep` varchar(9) DEFAULT NULL,
+  `logradouro` varchar(250) DEFAULT NULL,
+  `numero` int DEFAULT NULL,
+  `complemento` varchar(50) DEFAULT NULL,
+  `cidade` varchar(60) DEFAULT NULL,
+  `estado` varchar(60) DEFAULT NULL,
+  `localizacao` point NOT NULL /*!80003 SRID 4326 */,
+  PRIMARY KEY (`id_endereco`),
+  SPATIAL KEY `idx_localizacao` (`localizacao`)
+) ENGINE=InnoDB AUTO_INCREMENT=19 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
-    
-CREATE TABLE IF NOT EXISTS financeiro (
-  id_financeiro INT NOT NULL AUTO_INCREMENT,
-  valor DECIMAL(8,2) NULL,
-  dt_lancamento DATETIME NULL,
-  financeiro_fk_barberia INT NOT NULL,
-  PRIMARY KEY (id_financeiro, financeiro_fk_barberia),
-  INDEX fk_financeiro_Barbearia1_idx (financeiro_fk_barberia ASC) VISIBLE,
-  CONSTRAINT fk_financeiro_Barbearia1
-    FOREIGN KEY (financeiro_fk_barberia)
-    REFERENCES barbearia (id_barbearia)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION
-);
-    
-CREATE TABLE IF NOT EXISTS imgs_galeria (
-  id_imgs_galeria INT NOT NULL AUTO_INCREMENT,
-  imagem TEXT NULL,
-  barbearia_id_barbearia INT NOT NULL,
-  usuario_id_usuario INT NOT NULL,
-  PRIMARY KEY (id_imgs_galeria),
-  INDEX fk_imgs_galeria_barbearia1_idx (barbearia_id_barbearia ASC) VISIBLE,
-  INDEX fk_imgs_galeria_usuario1_idx (usuario_id_usuario ASC) VISIBLE,
-  CONSTRAINT fk_imgs_galeria_barbearia1
-    FOREIGN KEY (barbearia_id_barbearia)
-    REFERENCES barbearia (id_barbearia)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
-  CONSTRAINT fk_imgs_galeria_usuario1
-    FOREIGN KEY (usuario_id_usuario)
-    REFERENCES usuario (id_usuario)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION
-);
 
-CREATE TABLE IF NOT EXISTS servico (
-  id_servico INT NOT NULL AUTO_INCREMENT,
-  preco DECIMAL(7,2) NULL,
-  descricao TEXT NULL,
-  tipo_servico VARCHAR(180) NULL,
-  tempo_estimado INT NOT NULL,
-  servico_fk_usuario INT NOT NULL,
-  servico_fk_barbearia INT NOT NULL,
-  servico_fk_especialidade INT NOT NULL,
-  PRIMARY KEY (id_servico, servico_fk_usuario, servico_fk_barbearia, servico_fk_especialidade),
-  INDEX fk_servico_usuario1_idx (servico_fk_usuario ASC) VISIBLE,
-  INDEX fk_servico_barbearia1_idx (servico_fk_barbearia ASC) VISIBLE,
-  INDEX fk_servico_especialidade1_idx (servico_fk_especialidade ASC) VISIBLE,
-  CONSTRAINT fk_servico_usuario1
-    FOREIGN KEY (servico_fk_usuario)
-    REFERENCES usuario (id_usuario)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
-  CONSTRAINT fk_servico_barbearia1
-    FOREIGN KEY (servico_fk_barbearia)
-    REFERENCES barbearia (id_barbearia)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
-  CONSTRAINT fk_servico_especialidade1
-    FOREIGN KEY (servico_fk_especialidade)
-    REFERENCES especialidade (id_especialidade)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
-  INDEX idx_servico_fk_agendamento (id_servico, servico_fk_usuario, servico_fk_barbearia, servico_fk_especialidade)
-);
+-- db_naregua.especialidade definição
 
-CREATE TABLE IF NOT EXISTS agendamento (
-  id_agendamento INT NOT NULL AUTO_INCREMENT,
-  data_hora DATETIME NULL,
-  concluido BOOLEAN NOT NULL,
-  ag_fk_servico INT NOT NULL,
-  ag_fk_cliente INT NOT NULL,
-  ag_fk_barbeiro INT NOT NULL,
-  ag_fk_barbearia INT NOT NULL,
-  ag_fk_especialidade INT NOT NULL,
-  ag_fk_avaliacao INT NOT NULL,
-  PRIMARY KEY (id_agendamento),
-  INDEX fk_agendamento_Avaliacao1_idx (ag_fk_avaliacao),
-  CONSTRAINT fk_agendamento_cliente
-    FOREIGN KEY (ag_fk_cliente)
-    REFERENCES usuario (id_usuario)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
-  CONSTRAINT fk_agendamento_barbeiro
-    FOREIGN KEY (ag_fk_barbeiro)
-    REFERENCES usuario (id_usuario)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
-  CONSTRAINT fk_agendamento_Avaliacao1
-    FOREIGN KEY (ag_fk_avaliacao)
-    REFERENCES avaliacao (id_avaliacao)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION
-);
+CREATE TABLE `especialidade` (
+  `id_especialidade` int NOT NULL AUTO_INCREMENT,
+  `nome` varchar(180) DEFAULT NULL,
+  PRIMARY KEY (`id_especialidade`)
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
+
+-- db_naregua.tipo_notificacao definição
+
+CREATE TABLE `tipo_notificacao` (
+  `id_tipo_notificacao` int NOT NULL AUTO_INCREMENT,
+  `nome` varchar(50) NOT NULL,
+  `data_criacao` datetime NOT NULL,
+  PRIMARY KEY (`id_tipo_notificacao`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+
+-- db_naregua.barbearia definição
+CREATE TABLE `barbearia` (
+  `id_barbearia` int NOT NULL AUTO_INCREMENT,
+  `nome_negocio` varchar(100) DEFAULT NULL,
+  `email_negocio` varchar(100) DEFAULT NULL,
+  `celular_negocio` varchar(15) DEFAULT NULL,
+  `cnpj` varchar(18) DEFAULT NULL,
+  `cpf` varchar(14) DEFAULT NULL,
+  `descricao` text,
+  `barbearia_fk_endereco` int NOT NULL,
+  `img_perfil` text,
+  `img_banner` text,
+  PRIMARY KEY (`id_barbearia`),
+  KEY `barbearia_fk_endereco` (`barbearia_fk_endereco`),
+  CONSTRAINT `barbearia_ibfk_1` FOREIGN KEY (`barbearia_fk_endereco`) REFERENCES `endereco` (`id_endereco`)
+) ENGINE=InnoDB AUTO_INCREMENT=16 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+
+-- db_naregua.dia_semana definição
+
+CREATE TABLE `dia_semana` (
+  `id_dia_semana` int NOT NULL AUTO_INCREMENT,
+  `nome` enum('SEG','TER','QUA','QUI','SEX','SAB','DOM') DEFAULT NULL,
+  `hora_abertura` time DEFAULT NULL,
+  `hora_fechamento` time DEFAULT NULL,
+  `ds_id_barbearia` int NOT NULL,
+  PRIMARY KEY (`id_dia_semana`),
+  KEY `ds_id_barbearia` (`ds_id_barbearia`),
+  CONSTRAINT `dia_semana_ibfk_1` FOREIGN KEY (`ds_id_barbearia`) REFERENCES `barbearia` (`id_barbearia`)
+) ENGINE=InnoDB AUTO_INCREMENT=57 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+
+-- db_naregua.financeiro definição
+
+CREATE TABLE `financeiro` (
+  `id_financeiro` int NOT NULL AUTO_INCREMENT,
+  `dt_lancamento` datetime(6) DEFAULT NULL,
+  `valor` float DEFAULT NULL,
+  `saldo` decimal(10,2) DEFAULT NULL,
+  `despesas` bit(1) DEFAULT NULL,
+  `financeiro_fk_barbearia` int DEFAULT NULL,
+  PRIMARY KEY (`id_financeiro`),
+  KEY `financeiro_fk_barbearia` (`financeiro_fk_barbearia`),
+  CONSTRAINT `financeiro_ibfk_1` FOREIGN KEY (`financeiro_fk_barbearia`) REFERENCES `barbearia` (`id_barbearia`)
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+
+-- db_naregua.servico definição
+
+CREATE TABLE `servico` (
+  `id_servico` int NOT NULL AUTO_INCREMENT,
+  `preco` float DEFAULT NULL,
+  `descricao` text,
+  `tipo_servico` varchar(180) DEFAULT NULL,
+  `tempo_estimado` int NOT NULL,
+  `servico_fk_barbearia` int NOT NULL,
+  `nome_barbeiro` varchar(255) DEFAULT NULL,
+  `status` bit(1) DEFAULT NULL,
+  PRIMARY KEY (`id_servico`),
+  KEY `servico_fk_barbearia` (`servico_fk_barbearia`),
+  CONSTRAINT `servico_ibfk_1` FOREIGN KEY (`servico_fk_barbearia`) REFERENCES `barbearia` (`id_barbearia`)
+) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+
+-- db_naregua.usuario definição
+
+CREATE TABLE `usuario` (
+  `id_usuario` int NOT NULL AUTO_INCREMENT,
+  `dtype` varchar(50) NOT NULL,
+  `nome` varchar(120) NOT NULL,
+  `email` varchar(250) NOT NULL,
+  `senha` varchar(80) NOT NULL,
+  `celular` varchar(15) NOT NULL,
+  `img_perfil` varchar(255) DEFAULT NULL,
+  `usuario_admin` bit(1) DEFAULT NULL,
+  `usuario_fk_barbearia` int DEFAULT NULL,
+  `usuario_fk_endereco` int DEFAULT NULL,
+  `barbeiro_fk_especialidade` int DEFAULT NULL,
+  `usuario_fk_especialidade` int DEFAULT NULL,
+  `username` varchar(50) DEFAULT NULL,
+  PRIMARY KEY (`id_usuario`),
+  UNIQUE KEY `UK_usuario_especialidade` (`usuario_fk_especialidade`),
+  KEY `usuario_fk_barbearia` (`usuario_fk_barbearia`),
+  KEY `usuario_fk_endereco` (`usuario_fk_endereco`),
+  KEY `barbeiro_fk_especialidade` (`barbeiro_fk_especialidade`),
+  CONSTRAINT `usuario_ibfk_1` FOREIGN KEY (`usuario_fk_especialidade`) REFERENCES `especialidade` (`id_especialidade`),
+  CONSTRAINT `usuario_ibfk_2` FOREIGN KEY (`usuario_fk_barbearia`) REFERENCES `barbearia` (`id_barbearia`),
+  CONSTRAINT `usuario_ibfk_3` FOREIGN KEY (`usuario_fk_endereco`) REFERENCES `endereco` (`id_endereco`),
+  CONSTRAINT `usuario_ibfk_4` FOREIGN KEY (`barbeiro_fk_especialidade`) REFERENCES `especialidade` (`id_especialidade`),
+  CONSTRAINT `usuario_chk_1` CHECK ((`dtype` in (_utf8mb4'Cliente',_utf8mb4'Barbeiro')))
+) ENGINE=InnoDB AUTO_INCREMENT=19 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+
+-- db_naregua.usuario_servico definição
+
+CREATE TABLE `usuario_servico` (
+  `servico_id_servico` int NOT NULL,
+  `servico_fk_barbearia` int DEFAULT NULL,
+  `usuario_id_usuario` int NOT NULL,
+  PRIMARY KEY (`servico_id_servico`,`usuario_id_usuario`),
+  KEY `servico_fk_barbearia` (`servico_fk_barbearia`),
+  KEY `usuario_id_usuario` (`usuario_id_usuario`),
+  CONSTRAINT `usuario_servico_ibfk_1` FOREIGN KEY (`servico_fk_barbearia`) REFERENCES `barbearia` (`id_barbearia`),
+  CONSTRAINT `usuario_servico_ibfk_2` FOREIGN KEY (`servico_id_servico`) REFERENCES `servico` (`id_servico`),
+  CONSTRAINT `usuario_servico_ibfk_3` FOREIGN KEY (`usuario_id_usuario`) REFERENCES `usuario` (`id_usuario`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+
+-- db_naregua.agendamento definição
+
+CREATE TABLE `agendamento` (
+  `id_agendamento` int NOT NULL AUTO_INCREMENT,
+  `data_hora` datetime NOT NULL,
+  `status` varchar(50) DEFAULT NULL,
+  `ag_fk_avaliacao` int DEFAULT NULL,
+  `barbearia_id_barbearia` int NOT NULL,
+  `barbeiro_id_usuario` int NOT NULL,
+  `cliente_id_usuario` int NOT NULL,
+  `servico_id_servico` int NOT NULL,
+  `especialidade_id_especialidade` int DEFAULT NULL,
+  `data_hora_concluido` datetime DEFAULT NULL,
+  `data_hora_fim_prevista` datetime DEFAULT NULL,
+  `avaliado` bit(1) DEFAULT NULL,
+  `id_avaliacao` int DEFAULT NULL,
+  `concluido` bit(1) DEFAULT NULL,
+  PRIMARY KEY (`id_agendamento`),
+  KEY `servico_id_servico` (`servico_id_servico`),
+  KEY `barbeiro_id_usuario` (`barbeiro_id_usuario`),
+  KEY `id_avaliacao` (`id_avaliacao`),
+  KEY `cliente_id_usuario` (`cliente_id_usuario`),
+  KEY `ag_fk_avaliacao` (`ag_fk_avaliacao`),
+  KEY `especialidade_id_especialidade` (`especialidade_id_especialidade`),
+  KEY `barbearia_id_barbearia` (`barbearia_id_barbearia`),
+  CONSTRAINT `agendamento_ibfk_1` FOREIGN KEY (`servico_id_servico`) REFERENCES `servico` (`id_servico`),
+  CONSTRAINT `agendamento_ibfk_2` FOREIGN KEY (`barbeiro_id_usuario`) REFERENCES `usuario` (`id_usuario`),
+  CONSTRAINT `agendamento_ibfk_3` FOREIGN KEY (`id_avaliacao`) REFERENCES `avaliacao` (`id_avaliacao`),
+  CONSTRAINT `agendamento_ibfk_4` FOREIGN KEY (`cliente_id_usuario`) REFERENCES `usuario` (`id_usuario`),
+  CONSTRAINT `agendamento_ibfk_5` FOREIGN KEY (`ag_fk_avaliacao`) REFERENCES `avaliacao` (`id_avaliacao`),
+  CONSTRAINT `agendamento_ibfk_6` FOREIGN KEY (`especialidade_id_especialidade`) REFERENCES `especialidade` (`id_especialidade`),
+  CONSTRAINT `agendamento_ibfk_7` FOREIGN KEY (`barbearia_id_barbearia`) REFERENCES `barbearia` (`id_barbearia`),
+  CONSTRAINT `agendamento_chk_1` CHECK ((`status` in (_utf8mb4'Agendado',_utf8mb4'Pendente',_utf8mb4'Concluido',_utf8mb4'Cancelado')))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+
+-- db_naregua.chat definição
+
+CREATE TABLE `chat` (
+  `id_chat` int NOT NULL AUTO_INCREMENT,
+  `data_criacao` datetime NOT NULL,
+  `barbearia_id_barbearia` int DEFAULT NULL,
+  `usuario_id_usuario` int DEFAULT NULL,
+  PRIMARY KEY (`id_chat`),
+  KEY `FK2ahurspt0jxplu4jlj9e5d4si` (`barbearia_id_barbearia`),
+  KEY `FKdi1ir9kfe88qhkcvvl5bydk3c` (`usuario_id_usuario`),
+  CONSTRAINT `FK2ahurspt0jxplu4jlj9e5d4si` FOREIGN KEY (`barbearia_id_barbearia`) REFERENCES `barbearia` (`id_barbearia`),
+  CONSTRAINT `FKdi1ir9kfe88qhkcvvl5bydk3c` FOREIGN KEY (`usuario_id_usuario`) REFERENCES `usuario` (`id_usuario`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+
+-- db_naregua.imgs_galeria definição
+
+CREATE TABLE `imgs_galeria` (
+  `id_imgs_galeria` int NOT NULL AUTO_INCREMENT,
+  `imagem` text NOT NULL,
+  `descricao` varchar(255) DEFAULT NULL,
+  `usuario_id_usuario` int DEFAULT NULL,
+  `is_active` bit(1) DEFAULT NULL,
+  PRIMARY KEY (`id_imgs_galeria`),
+  KEY `usuario_id_usuario` (`usuario_id_usuario`),
+  CONSTRAINT `imgs_galeria_ibfk_1` FOREIGN KEY (`usuario_id_usuario`) REFERENCES `usuario` (`id_usuario`)
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+
+-- db_naregua.mensagem definição
+
+CREATE TABLE `mensagem` (
+  `id_mensagem` int NOT NULL AUTO_INCREMENT,
+  `conteudo` text,
+  `data_criacao` datetime NOT NULL,
+  `status_mensagem` varchar(45) DEFAULT NULL,
+  `mensagem_id_usuario` int NOT NULL,
+  `mensagem_id_chat` int NOT NULL,
+  `filename` text,
+  `tipo` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`id_mensagem`,`mensagem_id_usuario`,`mensagem_id_chat`),
+  KEY `fk_mensagem_usuario_idx` (`mensagem_id_usuario`),
+  KEY `fk_mensagem_chat_history1_idx` (`mensagem_id_chat`),
+  CONSTRAINT `FK7tu1hlxoywt5f7m6adct06cwt` FOREIGN KEY (`mensagem_id_chat`) REFERENCES `chat` (`id_chat`),
+  CONSTRAINT `fk_mensagem_usuario` FOREIGN KEY (`mensagem_id_usuario`) REFERENCES `usuario` (`id_usuario`),
+  CONSTRAINT `ck_status` CHECK ((`status_mensagem` in (_utf8mb4'Enviada',_utf8mb4'Entregue',_utf8mb4'Lida')))
+) ENGINE=InnoDB AUTO_INCREMENT=20 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+
+-- db_naregua.notificacao definição
+
+CREATE TABLE `notificacao` (
+  `id_notificacao` int NOT NULL AUTO_INCREMENT,
+  `notificacao_id_usuario` int NOT NULL,
+  `notificacao_id_tipo` int NOT NULL,
+  `referencia_id` int DEFAULT NULL,
+  `mensagem` text,
+  `data_criacao` datetime DEFAULT NULL,
+  `lida` bit(1) DEFAULT b'0',
+  PRIMARY KEY (`id_notificacao`),
+  KEY `notificacao_id_usuario` (`notificacao_id_usuario`),
+  KEY `notificacao_id_tipo` (`notificacao_id_tipo`),
+  CONSTRAINT `notificacao_ibfk_1` FOREIGN KEY (`notificacao_id_usuario`) REFERENCES `usuario` (`id_usuario`),
+  CONSTRAINT `notificacao_ibfk_2` FOREIGN KEY (`notificacao_id_tipo`) REFERENCES `tipo_notificacao` (`id_tipo_notificacao`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+
+-- db_naregua.postagem definição
+
+CREATE TABLE `postagem` (
+  `id_postagem` int NOT NULL AUTO_INCREMENT,
+  `conteudo` text NOT NULL,
+  `data_criacao` datetime NOT NULL,
+  `postagem_id_usuario` int NOT NULL,
+  PRIMARY KEY (`id_postagem`,`postagem_id_usuario`),
+  KEY `fk_postagem_usuario` (`postagem_id_usuario`),
+  CONSTRAINT `fk_postagem_usuario` FOREIGN KEY (`postagem_id_usuario`) REFERENCES `usuario` (`id_usuario`)
+) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+
+-- db_naregua.comentario definição
+
+CREATE TABLE `comentario` (
+  `id_comentario` int NOT NULL AUTO_INCREMENT,
+  `conteudo` text NOT NULL,
+  `data_criacao` datetime NOT NULL,
+  `comentario_id_postagem` int NOT NULL,
+  `comentario_id_usuario` int NOT NULL,
+  PRIMARY KEY (`id_comentario`,`comentario_id_postagem`,`comentario_id_usuario`),
+  KEY `fk_comentario_postagem` (`comentario_id_postagem`),
+  KEY `fk_comentario_usuario` (`comentario_id_usuario`),
+  CONSTRAINT `fk_comentario_postagem` FOREIGN KEY (`comentario_id_postagem`) REFERENCES `postagem` (`id_postagem`),
+  CONSTRAINT `fk_comentario_usuario` FOREIGN KEY (`comentario_id_usuario`) REFERENCES `usuario` (`id_usuario`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+
+-- db_naregua.curtida definição
+
+CREATE TABLE `curtida` (
+  `id_curtida` int NOT NULL,
+  `data_criacao` datetime NOT NULL,
+  `curtida_id_usuario` int NOT NULL,
+  `curtida_id_comentario` int DEFAULT NULL,
+  `curtida_id_postagem` int DEFAULT NULL,
+  PRIMARY KEY (`id_curtida`,`curtida_id_usuario`),
+  KEY `fk_curtida_postagem` (`curtida_id_postagem`),
+  KEY `fk_curtida_comentario` (`curtida_id_comentario`),
+  KEY `fk_curtida_usuario` (`curtida_id_usuario`),
+  CONSTRAINT `fk_curtida_comentario` FOREIGN KEY (`curtida_id_comentario`) REFERENCES `comentario` (`id_comentario`),
+  CONSTRAINT `fk_curtida_postagem` FOREIGN KEY (`curtida_id_postagem`) REFERENCES `postagem` (`id_postagem`),
+  CONSTRAINT `fk_curtida_usuario` FOREIGN KEY (`curtida_id_usuario`) REFERENCES `usuario` (`id_usuario`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+
+-- db_naregua.midia definição
+
+CREATE TABLE `midia` (
+  `id_midia` int NOT NULL AUTO_INCREMENT,
+  `arquivo` text NOT NULL,
+  `data_criacao` datetime NOT NULL,
+  `midia_id_postagem` int DEFAULT NULL,
+  `midia_id_comentario` int DEFAULT NULL,
+  PRIMARY KEY (`id_midia`),
+  KEY `fk_midia_postagem` (`midia_id_postagem`),
+  KEY `fk_midia_comentario` (`midia_id_comentario`),
+  CONSTRAINT `fk_midia_comentario` FOREIGN KEY (`midia_id_comentario`) REFERENCES `comentario` (`id_comentario`),
+  CONSTRAINT `fk_midia_postagem` FOREIGN KEY (`midia_id_postagem`) REFERENCES `postagem` (`id_postagem`)
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
