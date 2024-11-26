@@ -2,7 +2,7 @@
 
 Repositório destinado aos arquivos de desenvolvimento de infraestrutura.
 
-# O Projeto
+# Projeto
 
 ![Design sem nome (3)](https://github.com/project-na-regua/NaRegua-Backend/assets/86022706/1f3f5e13-9a1b-42e0-a0dd-2a716575150b)
 
