@@ -1,9 +1,10 @@
 name: Deploy MySQL Docker Image
 
 on:
-  push:
-    branches:
-      - main
+    push:
+      branches:
+        - main
+  
 
 jobs:
   deploy:
