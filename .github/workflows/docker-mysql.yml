@@ -6,7 +6,7 @@ on:
       - main
 
 jobs:
-  build-push:
+  build:
     runs-on: ubuntu-latest
     steps:
       # Checkout do código
@@ -36,30 +36,3 @@ jobs:
           file: Dockerfile
           push: true
           tags: melissaneves/mysql-docker:latest
-
-  deploy:
-    # Dependência: Só inicia após o job "build-push" ser concluído com sucesso
-    needs: build-push
-    runs-on: self-hosted
-    steps:
-      # Login no Docker Hub
-      - name: Log in to Docker Hub
-        run: echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USER }}" --password-stdin
-
-      # Pull da nova imagem Docker
-      - name: Pull Docker image
-        run: docker pull melissaneves/mysql-docker:latest
-
-      # Parar o contêiner em execução (se existir)
-      - name: Stop Docker container (if running)
-        run: |
-          docker ps -q --filter "name=mysql-docker" | grep -q . && docker stop mysql-docker || echo "Container not running"
-
-      # Remover o contêiner antigo (se existir)
-      - name: Remove Docker container (if exists)
-        run: |
-          docker ps -aq --filter "name=mysql-docker" | grep -q . && docker rm mysql-docker || echo "Container does not exist"
-
-      # Iniciar um novo contêiner
-      - name: Run new Docker container
-        run: docker run --name mysql-docker -d -p 3306:3306 melissaneves/mysql-docker:latest
