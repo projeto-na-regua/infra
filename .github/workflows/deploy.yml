@@ -7,7 +7,7 @@ on:
 
 jobs:
   deploy:
-    runs-on: self-hosted
+    runs-on: self-hosted  # Certifique-se de que o runner self-hosted está configurado corretamente
     steps:
       # Login no Docker Hub
       - name: Log in to Docker Hub
@@ -20,12 +20,20 @@ jobs:
       # Parar o contêiner em execução (se existir)
       - name: Stop Docker container (if running)
         run: |
-          docker ps -q --filter "name=mysql-docker" | grep -q . && docker stop mysql-docker || echo "Container not running"
+          if docker ps -q --filter "name=mysql-docker"; then
+            docker stop mysql-docker
+          else
+            echo "Container not running"
+          fi
 
       # Remover o contêiner antigo (se existir)
       - name: Remove Docker container (if exists)
         run: |
-          docker ps -aq --filter "name=mysql-docker" | grep -q . && docker rm mysql-docker || echo "Container does not exist"
+          if docker ps -aq --filter "name=mysql-docker"; then
+            docker rm mysql-docker
+          else
+            echo "Container does not exist"
+          fi
 
       # Iniciar um novo contêiner
       - name: Run new Docker container
