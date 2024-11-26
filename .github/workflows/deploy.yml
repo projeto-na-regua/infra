@@ -8,16 +8,16 @@ on:
 
 jobs:
   test:
-    runs-on: self-hosted
+    runs-on: [self-hosted, linux]  # Exemplo com label adicional
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
       - name: Echo message
         run: echo "Runner está funcionando!"
 
-        
+
   deploy:
-    runs-on: self-hosted  # Certifique-se de que o runner self-hosted está configurado corretamente
+    runs-on: [self-hosted, linux]  # Exemplo com label adicional
     steps:
       # Login no Docker Hub
       - name: Log in to Docker Hub
