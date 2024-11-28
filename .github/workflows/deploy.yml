@@ -1,19 +1,15 @@
 name: Deploy MySQL Docker Image
 
 on:
-    push:
-      branches:
-        - main
+  push:
+    branches:
+      - main
   
 
 jobs:
   deploy:
     runs-on: [self-hosted, Linux, X64]  # Exemplo com label adicional
     steps:
-      # Login no Docker Hub
-      - name: Log in to Docker Hub
-        run: echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USER }}" --password-stdin
-
       # Pull da nova imagem Docker
       - name: Pull Docker image
         run: docker pull melissaneves/mysql-docker:latest
