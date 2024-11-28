@@ -8,7 +8,7 @@ on:
 
 jobs:
   deploy:
-    runs-on: self-hosted  # Exemplo com label adicional
+    runs-on: [self-hosted, Linux, X64]  # Exemplo com label adicional
     steps:
       # Login no Docker Hub
       - name: Log in to Docker Hub
